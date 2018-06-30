@@ -9,7 +9,7 @@
     "url": "github:influxdata/chronograf"
   },
   "scripts": {
-    "build": "yarn run parcel build -d build src/index.html",
+    "build": "parcel build -d build --public-url '' src/index.html",
     "start": "node parcel.js",
     "lint": "esw src/",
     "test": "jest",
