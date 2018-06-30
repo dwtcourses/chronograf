@@ -5213,8 +5213,9 @@
             }
           ]
         }
-      },
-      "LogViewerUIConfig": {
+      }
+    },
+    "LogViewerUIConfig": {
       "description": "Contains the settings for the log viewer page UI",
       "type": "object",
       "required": ["columns"],
