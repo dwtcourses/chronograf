@@ -16,7 +16,7 @@
     "test:lint": "yarn run lint; yarn run test",
     "test:watch": "jest --watch",
     "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
-    "clean": "rm -rf ./build/*",
+    "clean": "rm -rf ./build && rm -rf ./cache",
     "eslint:fix": "eslint src --fix",
     "tslint:fix": "tslint --fix -c ./tslint.json '{src,test}/**/*.ts?(x)'",
     "prettier": "prettier --single-quote --trailing-comma es5 --bracket-spacing false --semi false --write \"{src,spec}/**/*.js\"",
