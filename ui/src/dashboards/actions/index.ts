@@ -4,7 +4,7 @@ import _ from 'lodash'
 import queryString from 'query-string'
 
 import {proxy} from 'src/utils/queryUrlGenerator'
-import {parseMetaQuery} from 'src/tempVars/utils/parsing'
+import {parseMetaQuery} from 'src/tempVars/parsing'
 
 import {
   getDashboards as getDashboardsAJAX,

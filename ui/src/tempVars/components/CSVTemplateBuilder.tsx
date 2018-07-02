@@ -10,7 +10,7 @@ import DragAndDrop from 'src/shared/components/DragAndDrop'
 import {notifyCSVUploadFailed} from 'src/shared/copy/notifications'
 
 import {TemplateBuilderProps, TemplateValueType, TemplateValue} from 'src/types'
-import {trimAndRemoveQuotes} from 'src/tempVars/utils/parsing'
+import {trimAndRemoveQuotes} from 'src/tempVars/parsing'
 
 interface State {
   templateValuesString: string
