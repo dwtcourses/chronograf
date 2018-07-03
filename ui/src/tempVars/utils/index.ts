@@ -4,3 +4,6 @@ export const trimAndRemoveQuotes = elt => {
 
   return dequoted
 }
+
+export const formatTempVar = name =>
+  `:${name.replace(/:/g, '').replace(/\s/g, '')}:`
