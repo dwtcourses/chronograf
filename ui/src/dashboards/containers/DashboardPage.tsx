@@ -23,7 +23,10 @@ import * as notifyActions from 'src/shared/actions/notifications'
 // Utils
 import idNormalizer, {TYPE_ID} from 'src/normalizers/id'
 import {millisecondTimeRange} from 'src/dashboards/utils/time'
-import {stripTempVar} from 'src/dashboards/utils/tempVars'
+import {
+  stripTempVar,
+  getTemplateQPSelections,
+} from 'src/dashboards/utils/tempVars'
 import {getDeep} from 'src/utils/wrappers'
 
 // Constants
@@ -60,6 +63,7 @@ interface DashboardActions {
   putDashboardByID: DashboardsActions.PutDashboardByIDDispatcher
   getDashboardsAsync: DashboardsActions.GetDashboardsDispatcher
   getDashboardWithHydratedAndSyncedTempVarsAsync: DashboardsActions.GetDashboardWithHydratedAndSyncedTempVarsAsyncDispatcher
+  getDashboardWithTemplates: DashboardsActions.GetDashboardWithTemplates
   setTimeRange: DashboardsActions.SetTimeRangeActionCreator
   addDashboardCellAsync: DashboardsActions.AddDashboardCellDispatcher
   editCellQueryStatus: DashboardsActions.EditCellQueryStatusActionCreator
@@ -349,16 +353,15 @@ class DashboardPage extends Component<Props, State> {
     this.setState({windowHeight: window.innerHeight})
   }
 
-  private getDashboard = async (): Promise<
-    DashboardsActions.GetDashboardWithHydratedAndSyncedTempVarsAsyncThunk
-  > => {
-    const {dashboardID, source, router, location} = this.props
+  private getDashboard = async () => {
+    const {dashboardID, source, router, getDashboardWithTemplates} = this.props
+    const templateSelections = getTemplateQPSelections()
 
-    return await this.props.getDashboardWithHydratedAndSyncedTempVarsAsync(
+    return getDashboardWithTemplates(
       dashboardID,
-      source,
       router,
-      location
+      source,
+      templateSelections
     )
   }
 

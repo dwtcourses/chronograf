@@ -14,7 +14,12 @@ import {
   createDashboard as createDashboardAJAX,
 } from 'src/dashboards/apis'
 import {getMe} from 'src/shared/apis/auth'
-import {hydrateTemplates, hydrateNestedTemplates} from 'src/tempVars/apis'
+import {
+  hydrateTemplates,
+  hydrateNestedTemplates,
+  hydrateTemplate,
+  isTemplateNested,
+} from 'src/tempVars/apis'
 
 import {notify} from 'src/shared/actions/notifications'
 import {errorThrown} from 'src/shared/actions/errors'
@@ -22,6 +27,7 @@ import {errorThrown} from 'src/shared/actions/errors'
 import {
   generateURLQueryParamsFromTempVars,
   findInvalidTempVarsInURLQuery,
+  applySelections,
 } from 'src/dashboards/utils/tempVars'
 import {validTimeRange, validAbsoluteTimeRange} from 'src/dashboards/utils/time'
 import {
@@ -781,4 +787,46 @@ export const setZoomedTimeRangeAsync: DashboardsActions.SetZoomedTimeRangeDispat
     location,
     urlQueryParamsZoomedTimeRange
   )(dispatch)
+}
+
+export const getDashboardWithTemplates = (
+  dashboardId: number,
+  router: InjectedRouter,
+  source: SourcesModels.Source,
+  templateSelections: DashboardsModels.TemplateQPSelections
+) => async (dispatch: Dispatch<any>) => {
+  const resp = await getDashboardAJAX(dashboardId)
+  const dashboard: DashboardsModels.Dashboard = resp.data
+
+  if (!dashboard) {
+    router.push(`/sources/${source.id}/dashboards`)
+    dispatch(notify(notifyDashboardNotFound(dashboardId)))
+    return
+  }
+
+  const proxyLink = source.links.proxy
+  const nonNestedTemplates = await Promise.all(
+    dashboard.templates
+      .filter(t => !isTemplateNested(t))
+      .map(t => hydrateTemplate(proxyLink, t, []))
+  )
+
+  applySelections(nonNestedTemplates, templateSelections)
+
+  const nestedTemplates = await Promise.all(
+    dashboard.templates
+      .filter(t => isTemplateNested(t))
+      .map(t => hydrateTemplate(proxyLink, t, nonNestedTemplates))
+  )
+
+  applySelections(nestedTemplates, templateSelections)
+
+  const hydratedDashboard = {
+    ...dashboard,
+    templates: [...nonNestedTemplates, ...nestedTemplates],
+  }
+
+  dispatch(loadDashboard(hydratedDashboard))
+
+  // TODO: Sync query params with resolved template selections
 }

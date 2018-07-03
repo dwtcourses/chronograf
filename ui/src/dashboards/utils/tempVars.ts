@@ -1,5 +1,8 @@
 import _ from 'lodash'
 import {getDeep} from 'src/utils/wrappers'
+import queryString from 'query-string'
+
+import {formatTempVar} from 'src/tempVars/utils'
 
 import {
   Dashboard,
@@ -7,8 +10,9 @@ import {
   TemplateQuery,
   TemplateValue,
   URLQueryParams,
+  TemplateUpdate,
 } from 'src/types'
-import {TemplateUpdate} from 'src/types'
+import {TemplateQPSelections} from 'src/types/dashboards'
 
 export const makeQueryForTemplate = ({
   influxql,
@@ -20,6 +24,36 @@ export const makeQueryForTemplate = ({
     .replace(':database:', `"${db}"`)
     .replace(':measurement:', `"${measurement}"`)
     .replace(':tagKey:', `"${tagKey}"`)
+
+export const getTemplateQPSelections = (): TemplateQPSelections => {
+  const queryParams = queryString.parse(window.location.search)
+
+  return Object.entries(queryParams).reduce(
+    (acc, [tempVar, v]) => ({...acc, [formatTempVar(tempVar)]: v}),
+    {}
+  )
+}
+
+export const applySelections = (
+  templates: Template[],
+  selections: TemplateQPSelections
+): void => {
+  for (const template of templates) {
+    if (!template.values.length) {
+      continue
+    }
+
+    let localSelectedValue = selections[template.tempVar]
+
+    if (!localSelectedValue) {
+      localSelectedValue = template.values.find(v => v.selected).value
+    }
+
+    for (const value of template.values) {
+      value.localSelected = value.value === localSelectedValue
+    }
+  }
+}
 
 export const stripTempVar = (tempVarName: string): string =>
   tempVarName.substr(1, tempVarName.length - 2)

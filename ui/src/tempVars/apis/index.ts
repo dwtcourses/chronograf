@@ -67,6 +67,11 @@ export const hydrateTemplate = async (
     }
   })
 
+  if (templateValues.length && !templateValues.find(v => v.selected)) {
+    // Handle stale selected value
+    templateValues[0].selected = true
+  }
+
   return {...template, values: templateValues}
 }
 

@@ -393,3 +393,10 @@ export type HydrateNestedTemplatesAsync = (
   dashboardID: number,
   source: Source
 ) => ((dispatch: Dispatch<any>) => Promise<void>)
+
+export type GetDashboardWithTemplates = (
+  dashboardId: number,
+  router: InjectedRouter,
+  source: Source,
+  templateSelections: DashboardsModels.TemplateQPSelections
+) => ((dispatch: Dispatch<any>) => Promise<void>)
