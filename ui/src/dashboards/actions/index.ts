@@ -3,9 +3,6 @@ import {replace} from 'react-router-redux'
 import _ from 'lodash'
 import queryString from 'query-string'
 
-import {proxy} from 'src/utils/queryUrlGenerator'
-import {parseMetaQuery} from 'src/tempVars/parsing'
-
 import {
   getDashboards as getDashboardsAJAX,
   getDashboard as getDashboardAJAX,
@@ -17,6 +14,7 @@ import {
   createDashboard as createDashboardAJAX,
 } from 'src/dashboards/apis'
 import {getMe} from 'src/shared/apis/auth'
+import {hydrateTemplates} from 'src/tempVars/apis'
 
 import {notify} from 'src/shared/actions/notifications'
 import {errorThrown} from 'src/shared/actions/errors'
@@ -43,7 +41,6 @@ import {
   notifyInvalidTimeRangeValueInURLQuery,
 } from 'src/shared/copy/notifications'
 
-import {makeQueryForTemplate} from 'src/dashboards/utils/tempVars'
 import {getDeep} from 'src/utils/wrappers'
 
 import idNormalizer, {TYPE_ID} from 'src/normalizers/id'
@@ -227,17 +224,11 @@ export const templateVariablesLocalSelectedByName: DashboardsActions.TemplateVar
   },
 })
 
-export const editTemplateVariableValues: DashboardsActions.EditTemplateVariableValuesActionCreator = (
-  dashboardID: number,
-  templateID: string,
-  values
-): DashboardsActions.EditTemplateVariableValuesAction => ({
-  type: 'EDIT_TEMPLATE_VARIABLE_VALUES',
-  payload: {
-    dashboardID,
-    templateID,
-    values,
-  },
+export const updateTemplates = (
+  templates: TempVarsModels.Template[]
+): DashboardsActions.UpdateTemplatesAction => ({
+  type: 'UPDATE_TEMPLATES',
+  payload: {templates},
 })
 
 export const setHoverTime: DashboardsActions.SetHoverTimeActionCreator = (
@@ -539,23 +530,13 @@ export const hydrateTempVarValuesAsync = (
     const dashboard = getState().dashboardUI.dashboards.find(
       d => d.id === dashboardID
     )
-    const templates: TempVarsModels.Template[] = dashboard.templates
-    const queries = templates
-      .filter(
-        template => getDeep<string>(template, 'query.influxql', '') !== ''
-      )
-      .map(async template => {
-        const query = makeQueryForTemplate(template.query)
-        const response = await proxy({source: source.links.proxy, query})
-        const values = parseMetaQuery(query, response.data)
 
-        return {template, values}
-      })
-    const results = await Promise.all(queries)
+    const templates = await hydrateTemplates(
+      source.links.proxy,
+      dashboard.templates
+    )
 
-    for (const {template, values} of results) {
-      dispatch(editTemplateVariableValues(+dashboard.id, template.id, values))
-    }
+    dispatch(updateTemplates(templates))
   } catch (error) {
     console.error(error)
     dispatch(errorThrown(error))

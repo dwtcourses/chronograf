@@ -255,18 +255,10 @@ export interface TemplateVariablesLocalSelectedByNameAction {
   }
 }
 
-export type EditTemplateVariableValuesActionCreator = (
-  dashboardID: number,
-  templateID: string,
-  values: any[]
-) => EditTemplateVariableValuesAction
-
-export interface EditTemplateVariableValuesAction {
-  type: 'EDIT_TEMPLATE_VARIABLE_VALUES'
+export interface UpdateTemplatesAction {
+  type: 'UPDATE_TEMPLATES'
   payload: {
-    dashboardID: number
-    templateID: string
-    values: any[]
+    templates: TempVarsModels.Template[]
   }
 }
 

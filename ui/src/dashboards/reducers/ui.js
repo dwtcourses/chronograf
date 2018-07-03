@@ -16,8 +16,6 @@ export const initialState = {
   activeCellID: '',
 }
 
-import {TEMPLATE_VARIABLE_TYPES} from 'src/tempVars/constants'
-
 const ui = (state = initialState, action) => {
   switch (action.type) {
     case 'LOAD_DASHBOARDS': {
@@ -187,49 +185,26 @@ const ui = (state = initialState, action) => {
       return {...state, dashboards: newDashboards}
     }
 
-    case 'EDIT_TEMPLATE_VARIABLE_VALUES': {
-      const {dashboardID, templateID, values} = action.payload
+    case 'UPDATE_TEMPLATES': {
+      const {templates: updatedTemplates} = action.payload
 
       const dashboards = state.dashboards.map(dashboard => {
-        if (dashboard.id !== dashboardID) {
-          return dashboard
-        }
-        const templates = dashboard.templates.map(template => {
-          if (template.id !== templateID) {
-            return template
-          }
-          const localSelectedValue = _.get(template, 'values', []).find(
-            v => v.localSelected
-          )
-          const selectedValue = _.get(template, 'values', []).find(
-            v => v.selected
-          )
+        const templates = dashboard.templates.reduce(
+          (acc, existingTemplate) => {
+            const updatedTemplate = updatedTemplates.find(
+              t => t.id === existingTemplate.id
+            )
 
-          const newValues = values.map(value => {
-            const isLocalSelected =
-              _.get(localSelectedValue, 'value', null) === value
-            const isSelected = _.get(selectedValue, 'value', null) === value
-
-            const newValue = {
-              localSelected: localSelectedValue ? isLocalSelected : isSelected,
-              selected: isSelected,
-              value,
-              type: TEMPLATE_VARIABLE_TYPES[template.type],
+            if (updatedTemplate) {
+              return [...acc, updatedTemplate]
             }
 
-            return newValue
-          })
+            return [...acc, existingTemplate]
+          },
+          []
+        )
 
-          return {
-            ...template,
-            values: newValues,
-          }
-        })
-
-        return {
-          ...dashboard,
-          templates,
-        }
+        return {...dashboard, templates}
       })
 
       return {...state, dashboards}
