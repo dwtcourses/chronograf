@@ -388,3 +388,8 @@ export type GetDashboardWithHydratedAndSyncedTempVarsAsyncDispatcher = (
 export type GetDashboardWithHydratedAndSyncedTempVarsAsyncThunk = (
   dispatch: Dispatch<NotificationsActions.PublishNotificationActionCreator>
 ) => Promise<void>
+
+export type HydrateNestedTemplatesAsync = (
+  dashboardID: number,
+  source: Source
+) => ((dispatch: Dispatch<any>) => Promise<void>)

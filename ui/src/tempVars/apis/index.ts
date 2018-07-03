@@ -29,6 +29,19 @@ export const hydrateTemplates = async (
   return [...nonNestedTemplates, ...nestedTemplates]
 }
 
+export const hydrateNestedTemplates = async (
+  proxyLink: string,
+  templates: Template[]
+): Promise<Template[]> => {
+  const nonNestedTemplates = templates.filter(t => !isTemplateNested(t))
+
+  return await Promise.all(
+    templates
+      .filter(t => isTemplateNested(t))
+      .map(t => hydrateTemplate(proxyLink, t, nonNestedTemplates))
+  )
+}
+
 export const hydrateTemplate = async (
   proxyLink: string,
   template: Template,

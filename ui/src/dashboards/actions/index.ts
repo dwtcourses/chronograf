@@ -14,7 +14,7 @@ import {
   createDashboard as createDashboardAJAX,
 } from 'src/dashboards/apis'
 import {getMe} from 'src/shared/apis/auth'
-import {hydrateTemplates} from 'src/tempVars/apis'
+import {hydrateTemplates, hydrateNestedTemplates} from 'src/tempVars/apis'
 
 import {notify} from 'src/shared/actions/notifications'
 import {errorThrown} from 'src/shared/actions/errors'
@@ -532,6 +532,27 @@ export const hydrateTempVarValuesAsync = (
     )
 
     const templates = await hydrateTemplates(
+      source.links.proxy,
+      dashboard.templates
+    )
+
+    dispatch(updateTemplates(templates))
+  } catch (error) {
+    console.error(error)
+    dispatch(errorThrown(error))
+  }
+}
+
+export const hydrateNestedTemplatesAsync = (
+  dashboardID: number,
+  source: SourcesModels.Source
+) => async (dispatch, getState): Promise<void> => {
+  try {
+    const dashboard = getState().dashboardUI.dashboards.find(
+      d => d.id === dashboardID
+    )
+
+    const templates = await hydrateNestedTemplates(
       source.links.proxy,
       dashboard.templates
     )

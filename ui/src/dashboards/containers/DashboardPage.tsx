@@ -69,6 +69,7 @@ interface DashboardActions {
   templateVariableLocalSelected: DashboardsActions.TemplateVariableLocalSelectedActionCreator
   syncURLQueryFromTempVars: DashboardsActions.SyncURLQueryFromTempVarsDispatcher
   setZoomedTimeRangeAsync: DashboardsActions.SetZoomedTimeRangeDispatcher
+  hydrateNestedTemplatesAsync: DashboardsActions.HydrateNestedTemplatesAsync
 }
 
 interface Props extends DashboardActions, ManualRefreshProps, WithRouterProps {
@@ -452,7 +453,7 @@ class DashboardPage extends Component<Props, State> {
   ): ((value: TempVarsModels.TemplateValue) => void) => (
     value: TempVarsModels.TemplateValue
   ): void => {
-    const {dashboard, location} = this.props
+    const {dashboard, location, source} = this.props
 
     const currentTempVar = dashboard.templates.find(
       tempVar => tempVar.id === templateID
@@ -467,6 +468,7 @@ class DashboardPage extends Component<Props, State> {
       updatedQueryParam
     )
     this.props.templateVariableLocalSelected(dashboard.id, templateID, [value])
+    this.props.hydrateNestedTemplatesAsync(dashboard.id, source)
   }
 
   private handleSaveTemplateVariables = async (
